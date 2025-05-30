@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Libros Extraídos con Filtros</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { padding: 20px; font-family: sans-serif; }
+        .filters { margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px; }
+        .filters label { margin-right: 10px; }
+        .filters select, .filters button { padding: 5px; margin-right: 15px; }
+        table { margin-top: 20px; width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #ddd; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        tr:hover { background-color: #e9ecef; }
+        th { background-color: #007bff; color: white; cursor: pointer; }
+        .book-title { max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <h1>📚 Catálogo de Libros</h1>
+
+        <div class="filters">
+            <form method="GET" action="{{ url_for('mostrar_libros') }}">
+                <label for="category_filter">Filtrar por Categoría:</label>
+                <select name="category_filter" id="category_filter" onchange="this.form.submit()">
+                    <option value="">Todas las Categorías</option>
+                    {% for categoria in categorias %}
+                        <option value="{{ categoria }}" {% if categoria == categoria_actual %}selected{% endif %}>
+                            {{ categoria }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <span>Ordenar por Precio:</span>
+                <a href="{{ url_for('mostrar_libros', category_filter=categoria_actual, sort_by='price_asc') }}" class="btn btn-sm btn-outline-primary">Más Baratos Primero</a>
+                <a href="{{ url_for('mostrar_libros', category_filter=categoria_actual, sort_by='price_desc') }}" class="btn btn-sm btn-outline-primary">Más Caros Primero</a>
+                
+                <a href="{{ url_for('mostrar_libros') }}" class="btn btn-sm btn-outline-secondary">Limpiar Filtros</a>
+            </form>
+        </div>
+
+        {% if libros %}
+            <p>Mostrando {{ libros|length }} libro(s).</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Precio (€)</th> <th>Disponibilidad</th>
+                        <th>Categoría</th>
+                        <th>URL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for libro in libros %}
+                    <tr>
+                        <td class="book-title" title="{{ libro.title }}">{{ libro.title }}</td>
+                        <td>{{ libro.price }}</td> <td>{{ libro.availability }}</td>
+                        <td>{{ libro.category }}</td>
+                        <td><a href="{{ libro.url }}" target="_blank">Ver libro</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No se encontraron libros con los filtros seleccionados o el archivo CSV está vacío.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
